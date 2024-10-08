@@ -133,6 +133,20 @@ const getAllTool = async (req, res) => {
   }
 };
 
+const getAllToolWithoutPagination = async (req, res) => {
+  try {
+
+
+    const results = await Tool.find().lean();
+
+
+    res.json(results);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
 //@desc   Update Tool Status
 //@route  PUT /updatetoolstatus/:id
 //@access Private
@@ -245,4 +259,5 @@ module.exports = {
   updateFilter,
   deleteTool,
   updateToolData,
+  getAllToolWithoutPagination
 }

@@ -39,7 +39,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: `http://localhost:${PORT}`, 
+        url: `https://aitoold.onrender.com`, 
       },
     ],
   },

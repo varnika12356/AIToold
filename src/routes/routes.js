@@ -31,6 +31,7 @@ const {
   homeAI,
   getTools,
   getAllTool,
+  getAllToolWithoutPagination,
   updateToolStatus,
   updateVisitCount,
   updateFilter,
@@ -597,6 +598,52 @@ router.post("/addcategory", addCategory);
  */
 router.get("/gettool", getTools);
 
+/**
+ * @swagger
+ * /getAllToolWithoutPagination:
+ *   get:
+ *     summary: Retrieve all tools without pagination
+ *     description: This endpoint returns a list of all tools in the database without pagination.
+ *     tags: [Tool]
+ *     responses:
+ *       200:
+ *         description: List of all tools retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   title:
+ *                     type: string
+ *                   category:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ *                   visit_link:
+ *                     type: string
+ *                   status:
+ *                     type: boolean
+ *                   visit_count:
+ *                     type: number
+ *                   rating:
+ *                     type: number
+ *                   isFree:
+ *                     type: boolean
+ *                   isVerified:
+ *                     type: boolean
+ *                   tags:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *       500:
+ *         description: Internal server error
+ */
+
+router.get('/getAllToolWithoutPagination', getAllToolWithoutPagination)
 
 // Define route for 'homeAi'
 
@@ -944,7 +991,37 @@ router.post("/sendsms", sendMessage);
  */
 router.post("/tool/:toolid/review", createReview);
 
-
+// Route to get all reviews
+/**
+ * @swagger
+ * /reviews:
+ *   get:
+ *     summary: Retrieve all reviews
+ *     description: This endpoint retrieves a list of all reviews.
+ *     tags: [Review]
+ *     responses:
+ *       200:
+ *         description: List of reviews retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   reviewContent:
+ *                     type: string
+ *                   rating:
+ *                     type: number
+ *                   productId:
+ *                     type: string
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/getAllReviews", getAllReviews)
 /**
  * @swagger
  * /tool/{toolid}/review:
