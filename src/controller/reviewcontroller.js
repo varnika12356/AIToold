@@ -7,19 +7,23 @@ const Tool = require("../schema/tool");
 //@access Private
 const createReview = async (req, res) => {
   try {
+    // debugger;
     const { toolId, reviewContent, rating } = req.body;
-    console.log(toolId);
+    console.log(req.body);
     
     
     // Validate input data
     if (!toolId || !reviewContent || !rating) {
-      console.log("sdaEFj");
       
       return res.status(400).json({ error: "Missing required fields" });
     }
     
     // Check if the tool exists
+    console.log("sdaEFj");
+
     const tool = await Tool.findById(toolId);
+    console.log("sdaEFj",tool);
+
     if (!tool) {
       return res.status(404).json({ error: "Tool not found" });
     }

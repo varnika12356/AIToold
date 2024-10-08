@@ -8,7 +8,7 @@ const toolSchema = new mongoose.Schema(
     longDescription: { type: String, required: false }, // Optional if not required
     visit_link: { type: String, required: true },
     pricing: {
-      price: { type: Number, required: true }, // Change to Number if it should be numeric
+      price: { type: String, required: true }, // Change to Number if it should be numeric
       type: {
         type: String,
         required: true,
