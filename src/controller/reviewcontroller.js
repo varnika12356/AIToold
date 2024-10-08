@@ -8,9 +8,13 @@ const Tool = require("../schema/tool");
 const createReview = async (req, res) => {
   try {
     const { toolId, reviewContent, rating } = req.body;
+    console.log(toolId);
+    
     
     // Validate input data
     if (!toolId || !reviewContent || !rating) {
+      console.log("sdaEFj");
+      
       return res.status(400).json({ error: "Missing required fields" });
     }
     
@@ -24,7 +28,7 @@ const createReview = async (req, res) => {
     const review = new Review({
       reviewContent,
       rating,
-      productId: toolId, // Set the productId to the ID of the tool
+      toolId: toolId, // Set the productId to the ID of the tool
     });
     await review.save();
     

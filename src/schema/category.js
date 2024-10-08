@@ -6,7 +6,9 @@ const categorySchema = new mongoose.Schema(
   { name: { type: String, required: true } },
   { collection: "category", timestamps: true, versionKey: false },
   { toolCount: { type: String }},
-  { icon: { type: String }}
+  { icon: { type: String }},
+  { timestamps: true, versionKey: false }
+
 );
 
 categorySchema.index({ name: 1 }, { unique: true });

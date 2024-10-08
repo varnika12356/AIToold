@@ -8,16 +8,19 @@
       type: Number,
       required: true
     },
-    productId: {
+    toolId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'tools', 
+      ref: 'Tool', 
       required: true
     },
     createdAt: {
       type: Date,
       default: Date.now
     }
-  });
+  },
+  { timestamps: true, versionKey: false }
+
+);
 
   const Review = mongoose.model('Review', reviewSchema);
 

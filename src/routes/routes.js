@@ -14,6 +14,15 @@ const {
   getCategory,
 } = require("../controller/categoryController");
 
+
+const {
+  createTutorial,
+  getAllTutorials,
+  getTutorialById,
+  updateTutorial,
+  deleteTutorial,
+} = require("../controller/aiTutorialsController")
+
 const {
   submitContactForm,
   getAllContacts,
@@ -956,18 +965,17 @@ router.post("/sendsms", sendMessage);
 // Route to create a new review for a specific tool
 /**
  * @swagger
- * /tool/{toolid}/review:
+ * /tool/{toolId}/review:
  *   post:
- *     summary: Create a new review for a specific tool
- *     description: This endpoint allows a user to submit a review for a specific tool.
+ *     summary: Create a review for a tool
  *     tags: [Reviews]
  *     parameters:
  *       - in: path
- *         name: toolid
- *         required: true
- *         description: The ID of the tool to which the review is associated.
+ *         name: toolId
  *         schema:
  *           type: string
+ *         required: true
+ *         description: The ID of the tool
  *     requestBody:
  *       required: true
  *       content:
@@ -975,15 +983,36 @@ router.post("/sendsms", sendMessage);
  *           schema:
  *             type: object
  *             properties:
- *               rating:
- *                 type: integer
  *               reviewContent:
  *                 type: string
+ *                 description: Content of the review
+ *                 example: "This tool is excellent for development."
+ *               rating:
+ *                 type: number
+ *                 description: Rating of the tool
+ *                 example: 4
  *     responses:
  *       201:
  *         description: Review created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   description: The review ID
+ *                 reviewContent:
+ *                   type: string
+ *                 rating:
+ *                   type: number
+ *                 toolId:
+ *                   type: string
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
  *       400:
- *         description: Bad request (e.g., missing parameters)
+ *         description: Missing required fields
  *       404:
  *         description: Tool not found
  *       500:
@@ -1092,6 +1121,174 @@ router.get("/tool/:toolid/review", getReviewsByToolId);
  *         description: Internal server error
  */
 router.post("/emails", replyOnQuery);
+
+
+/**
+ * @swagger
+ * path:
+ *   /tutorials:
+ *     post:
+ *       summary: Create a new tutorial
+ *       tags: [Tutorials]
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 toolId:
+ *                   type: string
+ *                   description: The ID of the associated tool
+ *                   example: "60c72b2f5f1b2c001f45d1a7"
+ *                 tutorialUrl:
+ *                   type: string
+ *                   description: The URL of the tutorial
+ *                   example: "https://example.com/tutorial"
+ *       responses:
+ *         201:
+ *           description: Tutorial created successfully
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   toolId:
+ *                     type: string
+ *                   tutorialUrl:
+ *                     type: string
+ *         500:
+ *           description: Internal server error
+ */
+router.post("/createAItutorial", createTutorial);
+
+/**
+ * @swagger
+ * path:
+ *   /tutorials:
+ *     get:
+ *       summary: Get all tutorials
+ *       tags: [Tutorials]
+ *       responses:
+ *         200:
+ *           description: A list of tutorials
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     toolId:
+ *                       type: string
+ *                     tutorialUrl:
+ *                       type: string
+ *         500:
+ *           description: Internal server error
+ */
+router.get("/getAllAITutorials", getAllTutorials);
+
+/**
+ * @swagger
+ * path:
+ *   /getAITutorialById/:id:
+ *     get:
+ *       summary: Get a tutorial by ID
+ *       tags: [Tutorials]
+ *       parameters:
+ *         - name: id
+ *           in: path
+ *           required: true
+ *           description: The ID of the tutorial
+ *           schema:
+ *             type: string
+ *       responses:
+ *         200:
+ *           description: A tutorial object
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   toolId:
+ *                     type: string
+ *                   tutorialUrl:
+ *                     type: string
+ *         404:
+ *           description: Tutorial not found
+ *         500:
+ *           description: Internal server error
+ */
+router.get("/getAITutorialById/:id", getTutorialById);
+
+/**
+ * @swagger
+ * path:
+ *   /tutorials/{id}:
+ *     put:
+ *       summary: Update a tutorial by ID
+ *       tags: [Tutorials]
+ *       parameters:
+ *         - name: id
+ *           in: path
+ *           required: true
+ *           description: The ID of the tutorial
+ *           schema:
+ *             type: string
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 toolId:
+ *                   type: string
+ *                 tutorialUrl:
+ *                   type: string
+ *       responses:
+ *         200:
+ *           description: Tutorial updated successfully
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   toolId:
+ *                     type: string
+ *                   tutorialUrl:
+ *                     type: string
+ *         404:
+ *           description: Tutorial not found
+ *         500:
+ *           description: Internal server error
+ */
+router.put("/updateTutorialById/:id", updateTutorial);
+
+/**
+ * @swagger
+ * path:
+ *   /deleteTutorialById/:id:
+ *     delete:
+ *       summary: Delete a tutorial by ID
+ *       tags: [Tutorials]
+ *       parameters:
+ *         - name: id
+ *           in: path
+ *           required: true
+ *           description: The ID of the tutorial
+ *           schema:
+ *             type: string
+ *       responses:
+ *         204:
+ *           description: Tutorial deleted successfully
+ *         404:
+ *           description: Tutorial not found
+ *         500:
+ *           description: Internal server error
+ */
+router.delete("/deleteTutorialById/:id", deleteTutorial);
+
 
 function getRandomMobileNumber() {
   // Mobile numbers usually start with a digit from 6 to 9 in many countries.

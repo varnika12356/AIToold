@@ -13,7 +13,9 @@ const smsSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-});
+},
+{ timestamps: true, versionKey: false }
+);
 
 const sendSms = mongoose.model("sms", smsSchema);
 module.exports = sendSms;
