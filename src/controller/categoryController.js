@@ -5,9 +5,11 @@ const Category = require("../schema/category");
 //@access Private
 const addCategory = async (req, res) => {
   try {
-    const { name, toolCount, icon } = req.body; // Add toolCount and icon
+    // const { name, toolCount, icon } = req.body; // Add toolCount and icon
+    const { name, icon } = req.body; // Add toolCount and icon
     const newCategory = new Category({
       name,
+      // toolCount: toolCount || 0, // default to 0 if not provided
       toolCount: toolCount || 0, // default to 0 if not provided
       icon: icon || '', // default to empty string if not provided
     });

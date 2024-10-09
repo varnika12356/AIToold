@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const categorySchema = new mongoose.Schema(
   { name: { type: String, required: true } },
   { collection: "category", timestamps: true, versionKey: false },
-  { toolCount: { type: String }},
+  // { toolCount: { type: String }},
   { icon: { type: String }},
   { timestamps: true, versionKey: false }
 

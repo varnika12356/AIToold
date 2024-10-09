@@ -62,26 +62,43 @@ const getAllReviews = async (req, res) => {
 //@desc   Get Review By ID
 //@route  GET /tool/:toolid/review
 //@access Private
+// const getReviewsByToolId = async (req, res) => {
+//   try {
+//     const { toolId } = req.params;
+
+//     // Find the tool by its ID
+//     // const ai = await ai.findById(toolId).populate("t");
+//     // if (!ai) {
+//     //   return res.status(404).json({ error: "Tool not found" });
+//     // }
+
+//     // Find all reviews associated with the tool
+//     const reviews = await Review.find({ productId: toolId });
+
+//     // Return the reviews in the response
+//     res.status(200).json(reviews);
+//   } catch (error) {
+//     console.error("Error getting reviews for tool:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+// Get reviews by toolId
 const getReviewsByToolId = async (req, res) => {
   try {
     const { toolId } = req.params;
 
-    // Find the tool by its ID
-    // const ai = await ai.findById(toolId).populate("t");
-    // if (!ai) {
-    //   return res.status(404).json({ error: "Tool not found" });
-    // }
+    // Find reviews where toolId matches
+    const reviews = await Review.find({ toolId });
 
-    // Find all reviews associated with the tool
-    const reviews = await Review.find({ productId: toolId });
+    if (!reviews || reviews.length === 0) {
+      return res.status(404).json({ message: 'No reviews found for this tool' });
+    }
 
-    // Return the reviews in the response
-    res.status(200).json(reviews);
+    res.status(200).json({  reviews });
   } catch (error) {
-    console.error("Error getting reviews for tool:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({  message: 'Server Error', error: error.message });
   }
-};
+}
 
 //@desc   Update Review
 //@route  PUT /tool/:toolid/update

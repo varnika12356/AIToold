@@ -1018,7 +1018,7 @@ router.post("/sendsms", sendMessage);
  *       500:
  *         description: Internal server error
  */
-router.post("/tool/:toolid/review", createReview);
+router.post("/createReview/:toolid", createReview);
 
 // Route to get all reviews
 /**
@@ -1051,45 +1051,52 @@ router.post("/tool/:toolid/review", createReview);
  *         description: Internal server error
  */
 router.get("/getAllReviews", getAllReviews)
+
 /**
  * @swagger
- * /tool/{toolid}/review:
+ * /tool/:toolid/review:
  *   get:
- *     summary: Get reviews for a specific tool
- *     description: This endpoint retrieves all reviews associated with a specific tool.
- *     tags: [Reviews]
+ *     summary: Get reviews by Tool ID
+ *     description: Retrieve all reviews for a specific tool by its ID.
  *     parameters:
  *       - in: path
- *         name: toolid
- *         required: true
- *         description: The ID of the tool for which reviews are being retrieved.
+ *         name: toolId
  *         schema:
  *           type: string
+ *         required: true
+ *         description: The ID of the tool to retrieve reviews for
  *     responses:
  *       200:
- *         description: Successfully retrieved reviews
+ *         description: A list of reviews for the tool
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   rating:
- *                     type: integer
- *                   reviewContent:
- *                     type: string
- *                   productId:
- *                     type: string
- *                   createdAt:
- *                     type: string
- *                     format: date-time
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 reviews:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       reviewContent:
+ *                         type: string
+ *                       rating:
+ *                         type: integer
+ *                       toolId:
+ *                         type: string
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
  *       404:
- *         description: No reviews found for this tool
+ *         description: No reviews found for the tool
  *       500:
- *         description: Internal server error
+ *         description: Server error
  */
-router.get("/tool/:toolid/review", getReviewsByToolId);
+router.get("/getReviewByToolId/:toolid", getReviewsByToolId);
 // POST route for creating a new email address
 /**
  * @swagger
