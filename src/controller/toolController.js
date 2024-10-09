@@ -16,19 +16,26 @@ const addTool = async (req, res) => {
     const tool = await Tool.create({
       title: req.body.title,
       category: req.body.category,
+      categoryId: req.body.categoryId,
       description: req.body.description,
-      longDescription: req.body.longDescription,
+      longDescription: req.body.longDescription || '', 
       visit_link: req.body.visit_link,
-      pricing: req.body.pricing,
-      firebase_image_url: req.body.firebase_image_url,
-      status: req.body.status || false, 
-      visit_count: req.body.visit_count || 0,
+      pricing: {
+        price: req.body.pricing.price,
+        type: req.body.pricing.type,
+        pricing_url: req.body.pricing.pricing_url || '',
+        pricing_image: req.body.pricing.pricing_image || ''
+      },
+      status: req.body.status !== undefined ? req.body.status : false, 
+      visit_count: req.body.visit_count !== undefined ? req.body.visit_count : 0, 
       filter: req.body.filter || "new", 
-      rating: req.body.rating || 0, 
-      isFree: req.body.isFree || false, 
-      isVerified: req.body.isVerified || false, 
-      tags: req.body.tags || [], 
-    });
+      firebase_image_url: req.body.firebase_image_url,
+      rating: req.body.rating !== undefined ? req.body.rating : 0, 
+      isFree: req.body.isFree !== undefined ? req.body.isFree : false, 
+      isVerified: req.body.isVerified !== undefined ? req.body.isVerified : false, 
+      tags: Array.isArray(req.body.tags) ? req.body.tags : [], 
+      ranking: req.body.ranking !== undefined ? req.body.ranking : null     
+      });
 
     res.status(201).json(tool);
   } catch (error) {

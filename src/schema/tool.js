@@ -4,6 +4,10 @@ const toolSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     category: { type: String, required: true },
+   categoryId: {
+       type: mongoose.Schema.Types.ObjectId,
+       ref: 'category',
+   },
     description: { type: String, required: true },
     longDescription: { type: String, required: false }, 
     visit_link: { type: String, required: true },
@@ -36,6 +40,6 @@ const toolSchema = new mongoose.Schema(
   { collection: "tools", timestamps: true, versionKey: false }
 );
 
-const Tool = mongoose.model("Tool", toolSchema); // Use 'Tool' for consistency
+const Tool = mongoose.model("tool", toolSchema); // Use 'Tool' for consistency
 
 module.exports = Tool;

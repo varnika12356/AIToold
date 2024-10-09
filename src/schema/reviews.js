@@ -10,7 +10,7 @@
     },
     toolId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Tool', 
+      ref: 'tool', 
       required: true
     },
     createdAt: {
