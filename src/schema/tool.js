@@ -1,13 +1,14 @@
 const mongoose = require("mongoose");
+const slugify = require("slugify");
 
 const toolSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     category: { type: String, required: true },
-   categoryId: {
-       type: mongoose.Schema.Types.ObjectId,
-       ref: 'category',
-   },
+    categoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'category',
+    },
     description: { type: String, required: true },
     longDescription: { type: String, required: false }, 
     visit_link: { type: String, required: true },
@@ -30,16 +31,22 @@ const toolSchema = new mongoose.Schema(
       default: "new",
     },
     firebase_image_url: { type: String, required: true }, 
-    rating: { type: Number, default: 0 }, 
     isFree: { type: Boolean, default: false }, 
     isVerified: { type: Boolean, default: false }, 
     tags: { type: [String], default: [] }, 
     ranking: { type: Number, required: false }, 
-
+    slug: { type: String, unique: true } 
   },
   { collection: "tools", timestamps: true, versionKey: false }
 );
 
-const Tool = mongoose.model("tool", toolSchema); // Use 'Tool' for consistency
+toolSchema.pre('save', function(next) {
+  if (this.title) {
+    this.slug = slugify(this.title, { lower: true });
+  }
+  next();
+});
+
+const Tool = mongoose.model("tool", toolSchema);
 
 module.exports = Tool;

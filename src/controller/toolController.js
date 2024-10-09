@@ -30,7 +30,6 @@ const addTool = async (req, res) => {
       visit_count: req.body.visit_count !== undefined ? req.body.visit_count : 0, 
       filter: req.body.filter || "new", 
       firebase_image_url: req.body.firebase_image_url,
-      rating: req.body.rating !== undefined ? req.body.rating : 0, 
       isFree: req.body.isFree !== undefined ? req.body.isFree : false, 
       isVerified: req.body.isVerified !== undefined ? req.body.isVerified : false, 
       tags: Array.isArray(req.body.tags) ? req.body.tags : [], 
@@ -140,12 +139,51 @@ const getAllTool = async (req, res) => {
   }
 };
 
+// const getAllToolWithoutPagination = async (req, res) => {
+//   try {
+
+
+//     const results = await Tool.find().lean();
+
+
+//     res.json(results);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Server Error" });
+//   }
+// };
+
 const getAllToolWithoutPagination = async (req, res) => {
   try {
+    const aggregatePipeline = [
+      {
+        $lookup: {
+          from: 'reviews', // The name of the review collection
+          localField: '_id', // The _id from the Tool document
+          foreignField: 'toolId', // The toolId field in the Review document
+          as: 'reviews' // Store the reviews array
+        }
+      },
+      {
+        $addFields: {
+          totalReviews: { $size: '$reviews' }, // Count the total number of reviews
+          averageRating: { $avg: '$reviews.rating' }, // Calculate the average rating
+        }
+      },
+      {
+        $project: {
+          title: 1, // Include necessary fields from the Tool schema
+          category: 1,
+          description: 1,
+          pricing: 1,
+          firebase_image_url: 1,
+          totalReviews: 1,
+          averageRating: { $ifNull: ['$averageRating', 0] }, // Handle cases with no reviews
+        }
+      }
+    ];
 
-
-    const results = await Tool.find().lean();
-
+    const results = await Tool.aggregate(aggregatePipeline);
 
     res.json(results);
   } catch (error) {
@@ -153,6 +191,9 @@ const getAllToolWithoutPagination = async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
+
+
+
 
 //@desc   Update Tool Status
 //@route  PUT /updatetoolstatus/:id

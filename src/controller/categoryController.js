@@ -1,21 +1,43 @@
 const Category = require("../schema/category");
 
 
+// const addCategory = async (req, res) => {
+//   try {
+//     const { name, icon } = req.body; 
+//     const newCategory = new Category({
+//       name,
+//       icon: icon || '', 
+//     });
+//     await newCategory.save();
+//     res.status(201).json(newCategory);
+//   } catch (error) {
+//     console.error("Error adding category:", error);
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
+
+
 const addCategory = async (req, res) => {
   try {
-    const { name, icon } = req.body; 
+    const { name, icon } = req.body;
+
+    // Ensure that the name is provided
+    if (!name) {
+      return res.status(400).json({ message: "Category name is required." });
+    }
+
     const newCategory = new Category({
       name,
       icon: icon || '', 
     });
-    await newCategory.save();
+
+    await newCategory.save(); 
     res.status(201).json(newCategory);
   } catch (error) {
     console.error("Error adding category:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 
 
 

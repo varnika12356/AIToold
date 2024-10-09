@@ -16,6 +16,11 @@
     createdAt: {
       type: Date,
       default: Date.now
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Users',
+      // required: true
     }
   },
   { timestamps: true, versionKey: false }
