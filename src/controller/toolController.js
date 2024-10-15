@@ -28,7 +28,7 @@ const addTool = async (req, res) => {
       },
       status: req.body.status !== undefined ? req.body.status : false, 
       visit_count: req.body.visit_count !== undefined ? req.body.visit_count : 0, 
-      filter: req.body.filter || "new", 
+      // filter: req.body.filter || "new", 
       firebase_image_url: req.body.firebase_image_url,
       isFree: req.body.isFree !== undefined ? req.body.isFree : false, 
       isVerified: req.body.isVerified !== undefined ? req.body.isVerified : false, 
@@ -139,46 +139,53 @@ const getAllTool = async (req, res) => {
   }
 };
 
-// const getAllToolWithoutPagination = async (req, res) => {
-//   try {
 
+const getToolById = async (req, res) => {
+  try {
+    const { id } = req.params; 
+    console.log("fnJSDFjS", id);
+    
+    const tool = await Tool.findById(id); 
+    console.log('DCMVSVS',tool);
+    
 
-//     const results = await Tool.find().lean();
+    if (!tool) {
+      return res.status(404).json({ message: 'Tool not found' }); 
+    }
 
-
-//     res.json(results);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: "Server Error" });
-//   }
-// };
+    res.status(200).json(tool);
+  } catch (error) {
+    console.error('Error fetching tool:', error);
+    res.status(500).json({ message: 'Server error', error: error.message }); 
+  }
+}
 
 const getAllToolWithoutPagination = async (req, res) => {
   try {
     const aggregatePipeline = [
       {
         $lookup: {
-          from: 'reviews', // The name of the review collection
-          localField: '_id', // The _id from the Tool document
-          foreignField: 'toolId', // The toolId field in the Review document
-          as: 'reviews' // Store the reviews array
+          from: 'reviews', 
+          localField: '_id', 
+          foreignField: 'toolId',
+          as: 'reviews' 
         }
       },
       {
         $addFields: {
-          totalReviews: { $size: '$reviews' }, // Count the total number of reviews
-          averageRating: { $avg: '$reviews.rating' }, // Calculate the average rating
+          totalReviews: { $size: '$reviews' }, 
+          averageRating: { $avg: '$reviews.rating' },
         }
       },
       {
         $project: {
-          title: 1, // Include necessary fields from the Tool schema
+          title: 1, 
           category: 1,
           description: 1,
           pricing: 1,
           firebase_image_url: 1,
           totalReviews: 1,
-          averageRating: { $ifNull: ['$averageRating', 0] }, // Handle cases with no reviews
+          averageRating: { $ifNull: ['$averageRating', 0] }, 
         }
       }
     ];
@@ -302,6 +309,7 @@ module.exports = {
   homeAI,
   getTools,
   getAllTool,
+  getToolById,
   updateToolStatus,
   updateVisitCount,
   updateFilter,

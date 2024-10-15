@@ -12,6 +12,9 @@ const { protect } = require("../Middleware/authMiddleware");
 const {
   addCategory,
   getCategory,
+  deleteCategory,
+  getCategoryById,
+  updateCategory
 } = require("../controller/categoryController");
 
 
@@ -40,6 +43,7 @@ const {
   homeAI,
   getTools,
   getAllTool,
+  getToolById,
   getAllToolWithoutPagination,
   updateToolStatus,
   updateVisitCount,
@@ -460,44 +464,128 @@ router.get("/contacts", getAllContacts);
 router.post("/addTool", addTool);
 
 
-
-// Get Category API
 /**
  * @swagger
- * /getcategory:
+ * /getToolById/{ID}:
  *   get:
- *     summary: Retrieve all categories
- *     description: This endpoint retrieves a list of all categories in the system.
- *     tags: [Category]
+ *     summary: Retrieve a tool by ID
+ *     description: Get a tool's details using its ID.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: The ID of the tool to retrieve.
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
- *         description: List of categories retrieved successfully
+ *         description: Tool retrieved successfully
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   _id:
- *                     type: string
- *                   name:
- *                     type: string
- *                   toolCount:
- *                     type: number
- *                   icon:
- *                     type: string
- *                   createdAt:
- *                     type: string
- *                     format: date-time
- *                   updatedAt:
- *                     type: string
- *                     format: date-time
+ *       404:
+ *         description: Tool not found
  *       500:
- *         description: Internal server error
+ *         description: Server error
  */
+router.post("/getToolById/:id", getToolById);
+
+
+// Get Category API
+
 router.get("/getcategory", getCategory);
 
+
+
+/**
+ * @swagger
+ * path:
+ *   /getCategoryById/{Id}:
+ *     get:
+ *       summary: Get a category by ID
+ *       tags: [Category]
+ *       parameters:
+ *         - name: id
+ *           in: path
+ *           required: true
+ *           description: The ID of the category
+ *           schema:
+ *             type: string
+ *       responses:
+ *         200:
+ *           description: A category object
+ *           content:
+ *             application/json:
+ *               schema:
+ *                
+ *         404:
+ *           description: Category not found
+ *         500:
+ *           description: Internal server error
+ */
+router.get("/getCategoryById/:id", getCategoryById);
+
+/**
+ * @swagger
+ * path:
+ *   /updateCategory/{categoryId}:
+ *     put:
+ *       summary: Update a category by ID
+ *       tags: [Categories]
+ *       parameters:
+ *         - name: categoryId
+ *           in: path
+ *           required: true
+ *           description: The ID of the category to update
+ *           schema:
+ *             type: string
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 name:
+ *                   type: string
+ *                   description: Name of the category
+ *                 icon:
+ *                   type: string
+ *                   description: Icon URL for the category
+ *       responses:
+ *         200:
+ *           description: The updated category object
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   success:
+ *                     type: boolean
+ *                   data:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *                       icon:
+ *                         type: string
+ *                       slug:
+ *                         type: string
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *         404:
+ *           description: Category not found
+ *         500:
+ *           description: Internal server error
+ */
+
+router.put("/updateCategory/:id", updateCategory)
 
 // Add Category API
 /**
@@ -530,7 +618,106 @@ router.get("/getcategory", getCategory);
  */
 router.post("/addcategory", addCategory);
 
+/**
+ * @swagger
+ * /tools/{toolId}:
+ *   put:
+ *     summary: Update the data of a specific tool
+ *     description: This endpoint updates the data of a tool identified by its Tool ID.
+ *     tags: [Tool]
+ *     parameters:
+ *       - in: path
+ *         name: toolId
+ *         required: true
+ *         description: ID of the tool to update
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 example: "Updated Tool Title"
+ *               description:
+ *                 type: string
+ *                 example: "This is an updated description of the tool."
+ *               category:
+ *                 type: string
+ *                 example: "Updated Category"
+ *               visit_link:
+ *                 type: string
+ *                 example: "https://example.com/tool"
+ *               pricing:
+ *                 type: object
+ *                 properties:
+ *                   price:
+ *                     type: string
+ *                     example: "Free"
+ *                   type:
+ *                     type: string
+ *                     enum: ["freemium", "trial", "premium"]
+ *               firebase_image_url:
+ *                 type: string
+ *                 example: "https://example.com/image.jpg"
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               isFree:
+ *                 type: boolean
+ *                 example: true
+ *               isVerified:
+ *                 type: boolean
+ *                 example: false
+ *     responses:
+ *       200:
+ *         description: Tool data updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *       404:
+ *         description: Tool not found
+ *       400:
+ *         description: Bad request (e.g., missing required fields)
+ *       500:
+ *         description: Internal server error
+ */
+router.put("/category/:categoryId", updateCategory);
 
+// Delete Category by Category ID
+/**
+ * @swagger
+ * /deleteCategory/{categoryId}:
+ *   delete:
+ *     summary: Delete a specific category
+ *     description: This endpoint deletes a category identified by its Category ID.
+ *     tags: [Category]
+ *     parameters:
+ *       - in: path
+ *         name: categoryId
+ *         required: true
+ *         description: ID of the category to delete
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Tool deleted successfully
+ *       404:
+ *         description: Tool not found
+ *       500:
+ *         description: Internal server error
+ */
+router.delete("/deleteCategory/:categoryId", deleteCategory);
 // Define route for '/AI'
 
 
@@ -1198,35 +1385,72 @@ router.get("/getAllAITutorials", getAllTutorials);
 /**
  * @swagger
  * path:
- *   /getAITutorialById/:id:
+ *   /getToolById/{id}:
  *     get:
- *       summary: Get a tutorial by ID
- *       tags: [Tutorials]
+ *       summary: Get a tool by ID
+ *       tags: [Tools]
  *       parameters:
  *         - name: id
  *           in: path
  *           required: true
- *           description: The ID of the tutorial
+ *           description: The ID of the tool
  *           schema:
  *             type: string
  *       responses:
  *         200:
- *           description: A tutorial object
+ *           description: A tool object
  *           content:
  *             application/json:
  *               schema:
  *                 type: object
  *                 properties:
- *                   toolId:
+ *                   title:
  *                     type: string
- *                   tutorialUrl:
+ *                   category:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ *                   longDescription:
+ *                     type: string
+ *                   visit_link:
+ *                     type: string
+ *                   pricing:
+ *                     type: object
+ *                     properties:
+ *                       price:
+ *                         type: string
+ *                       type:
+ *                         type: string
+ *                       pricing_url:
+ *                         type: string
+ *                       pricing_image:
+ *                         type: string
+ *                   status:
+ *                     type: boolean
+ *                   visit_count:
+ *                     type: number
+ *                   firebase_image_url:
+ *                     type: string
+ *                   isFree:
+ *                     type: boolean
+ *                   isFeatured:
+ *                     type: boolean
+ *                   isVerified:
+ *                     type: boolean
+ *                   tags:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   ranking:
+ *                     type: number
+ *                   slug:
  *                     type: string
  *         404:
- *           description: Tutorial not found
+ *           description: Tool not found
  *         500:
  *           description: Internal server error
  */
-router.get("/getAITutorialById/:id", getTutorialById);
+router.get("/getToolById/:id", getToolById)
 
 /**
  * @swagger
