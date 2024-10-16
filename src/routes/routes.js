@@ -135,8 +135,8 @@ router.post("/login", login);
  *       500:
  *         description: Internal server error
  */
-
 router.post("/signup", signup);
+
 
 // Forgot data API
 /**
@@ -168,8 +168,8 @@ router.post("/signup", signup);
  *       500:
  *         description: Internal server error
  */
-
 router.put("/forgot", forgotdata);
+
 
 // Get User Data by /:id API
 /**
@@ -233,9 +233,9 @@ router.get("/getprofiledata/:id", getprofile);
  *                   email:
  *                     type: string
  *                     format: email
- *                    number:
- *                      type: string
- *                      example: "9526159361"
+ *                   number:
+ *                     type: string
+ *                     example: "9526159361"
  *                   status:
  *                     type: boolean
  *                     example: true
@@ -243,6 +243,8 @@ router.get("/getprofiledata/:id", getprofile);
  *         description: Internal server error
  */
 router.get("/getuser", getuser);
+
+
 
 // Update User Data by /:id
 /**
@@ -302,8 +304,8 @@ router.get("/getuser", getuser);
  *       500:
  *         description: Internal server error
  */
-
 router.put("/updateprofile/:id", updateprofile);
+
 
 // ** Contact Controller All API ** //
 
