@@ -26,46 +26,108 @@ const addCategory = async (req, res) => {
 };
 
 
+// const getCategory = async (req, res) => {
+//   try {
+//     const aggregatePipeline = [
+//       {
+//         $lookup: {
+//           from: 'tools', 
+//           localField: '_id', 
+//           foreignField: 'categoryId', 
+//           as: 'tools' 
+//         }
+//       },
+//       {
+//         $project: {
+//           name: 1, 
+//           icon: 1, 
+//           toolCount: { $size: '$tools' }, 
+//           // tools: 0 // Exclude the tools array from the result
+//         }
+//       }
+//     ];
+
+//     if (req.query.category) {
+//       aggregatePipeline.unshift({
+//         $match: {
+//           name: req.query.category 
+//         }
+//       });
+//     }
+
+//     const categoryData = await Category.aggregate(aggregatePipeline);
+//     console.log(categoryData);
+
+//     if (!categoryData || categoryData.length === 0) {
+//       return res.status(404).json({ message: "Categories not found" });
+//     }
+
+//     res.status(200).json(categoryData);
+//   } catch (error) {
+//     console.log("Error Getting Categories", error);
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
+
+
 const getCategory = async (req, res) => {
   try {
-    const aggregatePipeline = [
-      {
-        $lookup: {
-          from: 'tools', 
-          localField: '_id', 
-          foreignField: 'categoryId', 
-          as: 'tools' 
-        }
-      },
-      {
-        $project: {
-          name: 1, 
-          icon: 1, 
-          toolCount: { $size: '$tools' }, 
-          // tools: 0 // Exclude the tools array from the result
-        }
+      const page = parseInt(req.query.page) || 1; // Current page, default to 1
+      const limit = parseInt(req.query.limit) || 10; // Number of items per page, default to 10
+      const skip = (page - 1) * limit; // Calculate the number of documents to skip
+
+      const aggregatePipeline = [
+          {
+              $lookup: {
+                  from: 'tools',
+                  localField: '_id',
+                  foreignField: 'categoryId',
+                  as: 'tools'
+              }
+          },
+          {
+              $project: {
+                  name: 1,
+                  icon: 1,
+                  toolCount: { $size: '$tools' },
+                  // tools: 0 // Exclude the tools array from the result
+              }
+          },
+          {
+              $skip: skip // Skip documents based on pagination
+          },
+          {
+              $limit: limit // Limit the number of documents returned
+          }
+      ];
+
+      if (req.query.category) {
+          aggregatePipeline.unshift({
+              $match: {
+                  name: req.query.category
+              }
+          });
       }
-    ];
 
-    if (req.query.category) {
-      aggregatePipeline.unshift({
-        $match: {
-          name: req.query.category 
-        }
+      const categoryData = await Category.aggregate(aggregatePipeline);
+      console.log(categoryData);
+
+      if (!categoryData || categoryData.length === 0) {
+          return res.status(404).json({ message: "Categories not found" });
+      }
+
+      // Count total categories for pagination
+      const totalCategories = await Category.countDocuments();
+
+      res.status(200).json({
+          data: categoryData,
+          currentPage: page,
+          totalPages: Math.ceil(totalCategories / limit), // Calculate total pages
+          totalCategories // Total number of categories
       });
-    }
-
-    const categoryData = await Category.aggregate(aggregatePipeline);
-    console.log(categoryData);
-
-    if (!categoryData || categoryData.length === 0) {
-      return res.status(404).json({ message: "Categories not found" });
-    }
-
-    res.status(200).json(categoryData);
   } catch (error) {
-    console.log("Error Getting Categories", error);
-    res.status(500).json({ message: "Internal Server Error" });
+      console.log("Error Getting Categories", error);
+      res.status(500).json({ message: "Internal Server Error" });
   }
 };
 

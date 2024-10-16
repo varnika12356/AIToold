@@ -44,12 +44,12 @@ const {
   getTools,
   getAllTool,
   getToolById,
-  getAllToolWithoutPagination,
   updateToolStatus,
   updateVisitCount,
   updateFilter,
   deleteTool,
   updateToolData,
+  getAllToolsWithoutPagination
 } = require("../controller/toolController");
 const {
   signup,
@@ -494,7 +494,69 @@ router.post("/getToolById/:id", getToolById);
 
 
 // Get Category API
-
+/**
+ * @swagger
+ * /getcategory:
+ *   get:
+ *     summary: Retrieve categories with pagination
+ *     tags: [Categories]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: The page number to retrieve
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: The number of items per page
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: The category name to filter by
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved categories
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         description: The category ID
+ *                       name:
+ *                         type: string
+ *                         description: The name of the category
+ *                       icon:
+ *                         type: string
+ *                         description: The icon URL for the category
+ *                       toolCount:
+ *                         type: integer
+ *                         description: The number of tools in the category
+ *                 currentPage:
+ *                   type: integer
+ *                   description: The current page number
+ *                 totalPages:
+ *                   type: integer
+ *                   description: The total number of pages
+ *                 totalCategories:
+ *                   type: integer
+ *                   description: The total number of categories
+ *       404:
+ *         description: Categories not found
+ *       500:
+ *         description: Internal Server Error
+ */
 router.get("/getcategory", getCategory);
 
 
@@ -724,124 +786,232 @@ router.delete("/deleteCategory/:categoryId", deleteCategory);
 
 
 // Get All Tools API
+// /**
+//  * @swagger
+//  * /gettool:
+//  *   get:
+//  *     summary: Retrieve tools based on AI filters
+//  *     description: This endpoint retrieves tools filtered by AI criteria.
+//  *     tags: [Tool]
+//  *     responses:
+//  *       200:
+//  *         description: List of tools retrieved successfully
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 type: object
+//  *                 properties:
+//  *                   id:
+//  *                     type: string
+//  *                     description: Unique identifier for the tool
+//  *                   title:
+//  *                     type: string
+//  *                     description: The title of the tool
+//  *                   category:
+//  *                     type: string
+//  *                     description: The category of the tool
+//  *                   description:
+//  *                     type: string
+//  *                     description: Brief description of the tool
+//  *                   visit_link:
+//  *                     type: string
+//  *                     description: Link to visit the tool
+//  *                   pricing:
+//  *                     type: object
+//  *                     properties:
+//  *                       price:
+//  *                         type: number
+//  *                         description: Price of the tool
+//  *                       type:
+//  *                         type: string
+//  *                         description: Type of pricing model (freemium, trial, premium)
+//  *                   status:
+//  *                     type: boolean
+//  *                     description: Indicates if the tool is active or not
+//  *                   visit_count:
+//  *                     type: number
+//  *                     description: Number of times the tool has been visited
+//  *                   filter:
+//  *                     type: string
+//  *                     description: Filter category of the tool (new, popular, featured)
+//  *                   firebase_image_url:
+//  *                     type: string
+//  *                     description: URL of the tool's image stored in Firebase
+//  *                   rating:
+//  *                     type: number
+//  *                     description: Rating of the tool
+//  *                   isFree:
+//  *                     type: boolean
+//  *                     description: Indicates if the tool is free to use
+//  *                   isVerified:
+//  *                     type: boolean
+//  *                     description: Indicates if the tool is verified
+//  *                   tags:
+//  *                     type: array
+//  *                     items:
+//  *                       type: string
+//  *                     description: Tags associated with the tool
+//  *       500:
+//  *         description: Internal server error
+//  */
+// router.get("/gettool", getTools);
+
+
 /**
  * @swagger
- * /gettool:
+ * /getAllTool:
  *   get:
- *     summary: Retrieve tools based on AI filters
- *     description: This endpoint retrieves tools filtered by AI criteria.
+ *     summary: Retrieve all tools with pagination
+ *     description: This endpoint returns a paginated list of tools from the database.
  *     tags: [Tool]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Maximum number of results per page
  *     responses:
  *       200:
- *         description: List of tools retrieved successfully
+ *         description: Paginated list of tools retrieved successfully
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: string
- *                     description: Unique identifier for the tool
- *                   title:
- *                     type: string
- *                     description: The title of the tool
- *                   category:
- *                     type: string
- *                     description: The category of the tool
- *                   description:
- *                     type: string
- *                     description: Brief description of the tool
- *                   visit_link:
- *                     type: string
- *                     description: Link to visit the tool
- *                   pricing:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
  *                     type: object
  *                     properties:
- *                       price:
- *                         type: number
- *                         description: Price of the tool
- *                       type:
+ *                       id:
  *                         type: string
- *                         description: Type of pricing model (freemium, trial, premium)
- *                   status:
- *                     type: boolean
- *                     description: Indicates if the tool is active or not
- *                   visit_count:
- *                     type: number
- *                     description: Number of times the tool has been visited
- *                   filter:
- *                     type: string
- *                     description: Filter category of the tool (new, popular, featured)
- *                   firebase_image_url:
- *                     type: string
- *                     description: URL of the tool's image stored in Firebase
- *                   rating:
- *                     type: number
- *                     description: Rating of the tool
- *                   isFree:
- *                     type: boolean
- *                     description: Indicates if the tool is free to use
- *                   isVerified:
- *                     type: boolean
- *                     description: Indicates if the tool is verified
- *                   tags:
- *                     type: array
- *                     items:
- *                       type: string
- *                     description: Tags associated with the tool
+ *                       title:
+ *                         type: string
+ *                       category:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       pricing:
+ *                         type: string
+ *                       firebase_image_url:
+ *                         type: string
+ *                       totalReviews:
+ *                         type: integer
+ *                       averageRating:
+ *                         type: number
+ *                 currentPage:
+ *                   type: integer
+ *                 totalPages:
+ *                   type: integer
+ *                 totalTools:
+ *                   type: integer
  *       500:
  *         description: Internal server error
  */
-router.get("/gettool", getTools);
+router.get('/getAllTool', getAllTool);
+
 
 /**
  * @swagger
  * /getAllToolWithoutPagination:
  *   get:
- *     summary: Retrieve all tools without pagination
- *     description: This endpoint returns a list of all tools in the database without pagination.
- *     tags: [Tool]
+ *     summary: Retrieve a list of all tools
+ *     tags: [Tools]
  *     responses:
  *       200:
- *         description: List of all tools retrieved successfully
+ *         description: A list of tools
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: string
- *                   title:
- *                     type: string
- *                   category:
- *                     type: string
- *                   description:
- *                     type: string
- *                   visit_link:
- *                     type: string
- *                   status:
- *                     type: boolean
- *                   visit_count:
- *                     type: number
- *                   rating:
- *                     type: number
- *                   isFree:
- *                     type: boolean
- *                   isVerified:
- *                     type: boolean
- *                   tags:
- *                     type: array
- *                     items:
- *                       type: string
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         description: The tool ID
+ *                       title:
+ *                         type: string
+ *                         description: The title of the tool
+ *                       category:
+ *                         type: string
+ *                         description: The category of the tool
+ *                       categoryId:
+ *                         type: string
+ *                         description: The category ID
+ *                       description:
+ *                         type: string
+ *                         description: A short description of the tool
+ *                       longDescription:
+ *                         type: string
+ *                         description: A detailed description of the tool
+ *                       visit_link:
+ *                         type: string
+ *                         description: The link to visit the tool
+ *                       pricing:
+ *                         type: string
+ *                         description: The pricing information
+ *                       status:
+ *                         type: string
+ *                         description: The current status of the tool
+ *                       visit_count:
+ *                         type: integer
+ *                         description: The number of visits
+ *                       firebase_image_url:
+ *                         type: string
+ *                         description: URL for the tool's image
+ *                       isFree:
+ *                         type: boolean
+ *                         description: Indicates if the tool is free
+ *                       isFeatured:
+ *                         type: boolean
+ *                         description: Indicates if the tool is featured
+ *                       isVerified:
+ *                         type: boolean
+ *                         description: Indicates if the tool is verified
+ *                       tags:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                         description: Tags related to the tool
+ *                       ranking:
+ *                         type: integer
+ *                         description: The ranking of the tool
+ *                       slug:
+ *                         type: string
+ *                         description: The URL slug for the tool
+ *                       totalReviews:
+ *                         type: integer
+ *                         description: Total number of reviews for the tool
+ *                       averageRating:
+ *                         type: number
+ *                         format: float
+ *                         description: Average rating of the tool
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Creation timestamp
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Last update timestamp
  *       500:
- *         description: Internal server error
+ *         description: Server error
  */
 
-router.get('/getAllToolWithoutPagination', getAllToolWithoutPagination)
+router.get('/getAllToolWithoutPagination', getAllToolsWithoutPagination)
 
 // Define route for 'homeAi'
 
@@ -1363,22 +1533,49 @@ router.post("/createAItutorial", createTutorial);
  * path:
  *   /tutorials:
  *     get:
- *       summary: Get all tutorials
+ *       summary: Get all tutorials with pagination
  *       tags: [Tutorials]
+ *       parameters:
+ *         - name: page
+ *           in: query
+ *           required: false
+ *           description: The page number to retrieve (default is 1)
+ *           schema:
+ *             type: integer
+ *             example: 1
+ *         - name: limit
+ *           in: query
+ *           required: false
+ *           description: The number of tutorials to retrieve per page (default is 10)
+ *           schema:
+ *             type: integer
+ *             example: 10
  *       responses:
  *         200:
- *           description: A list of tutorials
+ *           description: A list of tutorials with pagination info
  *           content:
  *             application/json:
  *               schema:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     toolId:
- *                       type: string
- *                     tutorialUrl:
- *                       type: string
+ *                 type: object
+ *                 properties:
+ *                   tutorials:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         toolId:
+ *                           type: string
+ *                         tutorialUrl:
+ *                           type: string
+ *                   totalPages:
+ *                     type: integer
+ *                     description: Total number of pages available
+ *                   currentPage:
+ *                     type: integer
+ *                     description: The current page number
+ *                   totalItems:
+ *                     type: integer
+ *                     description: Total number of tutorials available
  *         500:
  *           description: Internal server error
  */
@@ -1387,72 +1584,42 @@ router.get("/getAllAITutorials", getAllTutorials);
 /**
  * @swagger
  * path:
- *   /getToolById/{id}:
+ *   /getTutorialById/{id}:
  *     get:
- *       summary: Get a tool by ID
- *       tags: [Tools]
+ *       summary: Get a tutorial by ID
+ *       tags: [Tutorials]
  *       parameters:
  *         - name: id
  *           in: path
  *           required: true
- *           description: The ID of the tool
+ *           description: The ID of the tutorial to retrieve
  *           schema:
  *             type: string
  *       responses:
  *         200:
- *           description: A tool object
+ *           description: A tutorial object
  *           content:
  *             application/json:
  *               schema:
  *                 type: object
  *                 properties:
- *                   title:
+ *                   toolId:
  *                     type: string
- *                   category:
+ *                   tutorialUrl:
  *                     type: string
- *                   description:
+ *                   createdAt:
  *                     type: string
- *                   longDescription:
+ *                     format: date-time
+ *                   updatedAt:
  *                     type: string
- *                   visit_link:
- *                     type: string
- *                   pricing:
- *                     type: object
- *                     properties:
- *                       price:
- *                         type: string
- *                       type:
- *                         type: string
- *                       pricing_url:
- *                         type: string
- *                       pricing_image:
- *                         type: string
- *                   status:
- *                     type: boolean
- *                   visit_count:
- *                     type: number
- *                   firebase_image_url:
- *                     type: string
- *                   isFree:
- *                     type: boolean
- *                   isFeatured:
- *                     type: boolean
- *                   isVerified:
- *                     type: boolean
- *                   tags:
- *                     type: array
- *                     items:
- *                       type: string
- *                   ranking:
- *                     type: number
- *                   slug:
- *                     type: string
+ *                     format: date-time
  *         404:
- *           description: Tool not found
+ *           description: Tutorial not found
  *         500:
  *           description: Internal server error
  */
-router.get("/getToolById/:id", getToolById)
+
+router.get("/getTutorialById/:id", getTutorialById)
 
 /**
  * @swagger

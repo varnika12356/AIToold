@@ -109,35 +109,35 @@ const getTools = async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
-const getAllTool = async (req, res) => {
-  try {
-    const filter = new RegExp(req.query.filter?.trim(), 'i');
+// const getAllTool = async (req, res) => {
+//   try {
+//     const filter = new RegExp(req.query.filter?.trim(), 'i');
 
-    const query = {};
+//     const query = {};
 
-    // console.log("filter",filter)
+//     // console.log("filter",filter)
 
-    if (filter) {
-      const category = await Category.findOne({ name: filter });
+//     if (filter) {
+//       const category = await Category.findOne({ name: filter });
 
-      query["$or"] = [{ title: filter }, { filter: filter }];
+//       query["$or"] = [{ title: filter }, { filter: filter }];
 
-      if (category) query["$or"].push({ category: filter });
-    }
+//       if (category) query["$or"].push({ category: filter });
+//     }
 
-    const results = await Tool.find(query).lean();
+//     const results = await Tool.find(query).lean();
 
-    for (const tool of results) {
-      tool.status = tool.status == "true";
-      const totalReviews = await Review.countDocuments({ productId: tool._id });
-      tool.totalReviews = totalReviews;
-    }
-    res.json(results);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
-  }
-};
+//     for (const tool of results) {
+//       tool.status = tool.status == "true";
+//       const totalReviews = await Review.countDocuments({ productId: tool._id });
+//       tool.totalReviews = totalReviews;
+//     }
+//     res.json(results);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Server Error" });
+//   }
+// };
 
 
 const getToolById = async (req, res) => {
@@ -160,8 +160,12 @@ const getToolById = async (req, res) => {
   }
 }
 
-const getAllToolWithoutPagination = async (req, res) => {
+const getAllTool = async (req, res) => {
   try {
+    // Pagination parameters from the request
+    const { page = 1, limit = 10 } = req.query;
+
+    // Aggregate pipeline for retrieving tool data with pagination and returning all fields
     const aggregatePipeline = [
       {
         $lookup: {
@@ -179,25 +183,114 @@ const getAllToolWithoutPagination = async (req, res) => {
       },
       {
         $project: {
-          title: 1, 
+          _id: 1,
+          title: 1,
           category: 1,
+          categoryId: 1,
           description: 1,
+          longDescription: 1,
+          visit_link: 1,
           pricing: 1,
+          status: 1,
+          visit_count: 1,
           firebase_image_url: 1,
+          isFree: 1,
+          isFeatured: 1,
+          isVerified: 1,
+          tags: 1,
+          ranking: 1,
+          slug: 1,
           totalReviews: 1,
-          averageRating: { $ifNull: ['$averageRating', 0] }, 
+          averageRating: { $ifNull: ['$averageRating', 0] },
+          createdAt: 1,  // Include timestamps
+          updatedAt: 1
         }
-      }
+      },
+      { $skip: (page - 1) * limit }, // Skip based on page number
+      { $limit: parseInt(limit) }    // Limit the results to the page size
     ];
 
+    // Execute the aggregate query
     const results = await Tool.aggregate(aggregatePipeline);
 
-    res.json(results);
+    // Total count of documents for pagination
+    const totalTools = await Tool.countDocuments();
+
+    // Send response with pagination details
+    res.json({
+      data: results,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(totalTools / limit),
+      totalTools
+    });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 };
+
+const getAllToolsWithoutPagination = async (req, res) => {
+  try {
+    // Aggregate pipeline for retrieving tool data without pagination
+    const aggregatePipeline = [
+      {
+        $lookup: {
+          from: 'reviews',
+          localField: '_id',
+          foreignField: 'toolId',
+          as: 'reviews',
+        },
+      },
+      {
+        $addFields: {
+          totalReviews: { $size: '$reviews' },
+          averageRating: { $avg: '$reviews.rating' },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          category: 1,
+          categoryId: 1,
+          description: 1,
+          longDescription: 1,
+          visit_link: 1,
+          pricing: 1,
+          status: 1,
+          visit_count: 1,
+          firebase_image_url: 1,
+          isFree: 1,
+          isFeatured: 1,
+          isVerified: 1,
+          tags: 1,
+          ranking: 1,
+          slug: 1,
+          totalReviews: 1,
+          averageRating: { $ifNull: ['$averageRating', 0] },
+          createdAt: 1, // Include timestamps
+          updatedAt: 1,
+        },
+      },
+    ];
+
+    // Execute the aggregate query
+    const results = await Tool.aggregate(aggregatePipeline);
+
+    // Send response with the results
+    res.json({
+      data: results,
+      totalTools: results.length, // Total tools returned
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+
+
 
 
 
@@ -315,5 +408,5 @@ module.exports = {
   updateFilter,
   deleteTool,
   updateToolData,
-  getAllToolWithoutPagination
+  getAllToolsWithoutPagination
 }

@@ -1,5 +1,6 @@
 const AITutorial = require('../schema/aiTutorials'); 
 
+
 // Create a new tutorial
 const createTutorial = async (req, res) => {
   try {
@@ -16,21 +17,57 @@ const createTutorial = async (req, res) => {
 };
 
 // Get all tutorials
+// const getAllTutorials = async (req, res) => {
+//   try {
+//     const tutorials = await AITutorial.find()
+//     res.status(200).json(tutorials);
+//   } catch (error) {
+//     console.error("Error fetching tutorials:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
 const getAllTutorials = async (req, res) => {
   try {
+    // Extract page and limit from query parameters
+    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+    const limit = parseInt(req.query.limit) || 10; // Default to limit of 10 if not provided
+
+    // Calculate the offset
+    const offset = (page - 1) * limit;
+
+    // Fetch the tutorials with pagination
     const tutorials = await AITutorial.find()
-    res.status(200).json(tutorials);
+      .skip(offset)
+      .limit(limit);
+
+    // Count the total number of tutorials
+    const totalTutorials = await AITutorial.countDocuments();
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalTutorials / limit);
+
+    // Respond with the paginated tutorials and total pages
+    res.status(200).json({
+      tutorials,
+      totalPages,
+      currentPage: page,
+      totalItems: totalTutorials,
+    });
   } catch (error) {
     console.error("Error fetching tutorials:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
+
 // Get a tutorial by ID
 const getTutorialById = async (req, res) => {
   try {
     const { id } = req.params;
-    const tutorial = await AITutorial.findById(id).populate('toolId');
+    console.log('rgjaGjJs',id);
+    
+    const tutorial = await AITutorial.findById(id);
 
     if (!tutorial) {
       return res.status(404).json({ error: "Tutorial not found" });
