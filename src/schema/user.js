@@ -12,7 +12,6 @@ const UsersSchema = new mongoose.Schema(
     city: String,
     state: String,
     country: String,
-    role: String,
     status: { type: Boolean, default: true },
   },
   { timestamps: true, versionKey: false }

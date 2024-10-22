@@ -17,6 +17,13 @@ const {
   updateCategory
 } = require("../controller/categoryController");
 
+const {
+  signupAdmin,
+  loginAdmin,
+  getAdminById
+
+} = require("../controller/adminController")
+
 
 const {
   createTutorial,
@@ -57,12 +64,161 @@ const {
   getprofile,
   forgotdata,
   updateprofile,
-  getuser,
+  getAlluser,
+  deleteUser
 } = require("../controller/userController");
 
 router.post("/createfooter", createFooter);
 router.put("/updatefooter/:id", updateFooter);
 router.get("/getfooter", getFooter);
+
+
+
+// Admin api 
+
+/**
+ * @swagger
+ * /admin/signup:
+ *   post:
+ *     summary: Registers a new admin
+ *     tags: [Admin]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: Admin email
+ *               password:
+ *                 type: string
+ *                 description: Admin password
+ *               name:
+ *                 type: string
+ *                 description: Admin name
+ *             example:
+ *               email: admin@example.com
+ *               password: yourpassword123
+ *               name: John Doe
+ *     responses:
+ *       201:
+ *         description: Admin registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 loginid:
+ *                   type: string
+ *                   description: Admin ID
+ *                 email:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 message:
+ *                   type: string
+ *                   description: Success message
+ *       400:
+ *         description: Email already exists
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/signup", signupAdmin);
+
+/**
+ * @swagger
+ * /admin/login:
+ *   post:
+ *     summary: Logs in an admin
+ *     tags: [Admin]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: Admin email
+ *               password:
+ *                 type: string
+ *                 description: Admin password
+ *             example:
+ *               email: admin@example.com
+ *               password: yourpassword123
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: JWT token
+ *                 loginid:
+ *                   type: string
+ *                   description: Admin ID
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     email:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *       401:
+ *         description: Invalid email or password
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/login", loginAdmin);
+
+/**
+ * @swagger
+ * /admin/{id}:
+ *   get:
+ *     summary: Get admin by ID
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Admin ID
+ *     responses:
+ *       200:
+ *         description: Admin information retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Success message
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     email:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     other_admin_properties:
+ *                       type: string
+ *                       description: Other admin-specific fields
+ *       404:
+ *         description: Admin not found
+ *       500:
+ *         description: Failed to retrieve admin information
+ */
+router.get("/admin/:id", getAdminById);
+
+
 
 // ** User Controller All API ** //
 
@@ -211,7 +367,7 @@ router.get("/getprofiledata/:id", getprofile);
 // Get All User Data API
 /**
  * @swagger
- * /getuser:
+ * /getAlluser:
  *   get:
  *     summary: Retrieve all users
  *     description: This endpoint retrieves a list of all users in the system.
@@ -242,7 +398,7 @@ router.get("/getprofiledata/:id", getprofile);
  *       500:
  *         description: Internal server error
  */
-router.get("/getuser", getuser);
+router.get("/getAlluser", getAlluser);
 
 
 
@@ -305,6 +461,29 @@ router.get("/getuser", getuser);
  *         description: Internal server error
  */
 router.put("/updateprofile/:id", updateprofile);
+
+/**
+ * @swagger
+ * /deleteUserById/{id}:
+ *   delete:
+ *     summary: Delete a User by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: The ID of the user to delete
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: User deleted successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.delete("/deleteUserById/:id", deleteUser);
 
 
 // ** Contact Controller All API ** //
@@ -490,7 +669,7 @@ router.post("/addTool", addTool);
  *       500:
  *         description: Server error
  */
-router.post("/getToolById/:id", getToolById);
+router.get("/getToolById/:id", getToolById);
 
 
 // Get Category API
@@ -856,7 +1035,7 @@ router.delete("/deleteCategory/:categoryId", deleteCategory);
 //  *       500:
 //  *         description: Internal server error
 //  */
-// router.get("/gettool", getTools);
+router.get("/gettool", getTools);
 
 
 /**
