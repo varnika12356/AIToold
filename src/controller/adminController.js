@@ -65,7 +65,7 @@ const loginAdmin = async (req, res) => {
     }
   };
 
- const getAdminById = async(req,res)=>{
+const getAdminById = async(req,res)=>{
     const userId = req.params.id; 
 
   try {
@@ -89,10 +89,68 @@ const loginAdmin = async (req, res) => {
   }
   }
 
+const updateAdminById = async (req, res) => {
+    try {
+      const updatedAdmin = await AdminSchema.findByIdAndUpdate(
+        req.params.id,
+        { $set: req.body },
+        { new: true, runValidators: true } // Ensure the returned data is updated, and validators run
+      );
+      
+      if (!updatedAdmin) {
+        return res.status(404).json({ message: "Admin not found" });
+      }
+  
+      res.status(200).json(updatedAdmin);
+    } catch (error) {
+      console.error("Error updating admin:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };
+
+
+  const changePassword = async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    const userId = req.params.id;
+
+    try {
+        const user = await AdminSchema.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const isOldPasswordValid = await bcrypt.compare(oldPassword, user.password);
+        if (!isOldPasswordValid) {
+            return res.status(401).json({ error: "Old password is incorrect" });
+        }
+
+        // Check if the new password is the same as the old password
+        const isNewPasswordSameAsOld = await bcrypt.compare(newPassword, user.password);
+        if (isNewPasswordSameAsOld) {
+            return res.status(400).json({ error: "New password cannot be the same as old password" });
+        }
+
+        const salt = await bcrypt.genSalt(saltRounds);
+        const hashedNewPassword = await bcrypt.hash(newPassword, salt);
+
+        user.password = hashedNewPassword;
+        await user.save();
+
+        res.status(200).json({ message: "Password updated successfully" });
+    } catch (error) {
+        console.error("Error changing password:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+  
+
 
 
 module.exports = {
     signupAdmin, 
     loginAdmin,
-    getAdminById
+    getAdminById,
+    updateAdminById,
+    changePassword
 }

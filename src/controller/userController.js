@@ -139,8 +139,9 @@ const updateprofile = asyncHandler(async (req, res) => {
 const getAlluser = asyncHandler(async (req, res) => {
   try {
     let contactData = await UsersModel.find();
+    const totalUser = await UsersModel.countDocuments();
 
-    res.json(contactData);
+    res.status(200).json({ contactData, totalUser });
   } catch (error) {
     console.log(error);
     if (!error.status) {
@@ -150,6 +151,7 @@ const getAlluser = asyncHandler(async (req, res) => {
     res.status(error.status).json({ message: error.message });
   }
 });
+
 
 //@desc   Genetate Token Function
 const generateToken = (id) => {

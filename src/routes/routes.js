@@ -20,7 +20,9 @@ const {
 const {
   signupAdmin,
   loginAdmin,
-  getAdminById
+  getAdminById,
+  updateAdminById,
+  changePassword
 
 } = require("../controller/adminController")
 
@@ -179,7 +181,7 @@ router.post("/login", loginAdmin);
 
 /**
  * @swagger
- * /admin/{id}:
+ * /getAdminById/{id}:
  *   get:
  *     summary: Get admin by ID
  *     tags: [Admin]
@@ -216,9 +218,95 @@ router.post("/login", loginAdmin);
  *       500:
  *         description: Failed to retrieve admin information
  */
-router.get("/admin/:id", getAdminById);
+router.get("/getAdminById/:id", getAdminById);
 
+/**
+ * @swagger
+ * /updateAdminById/{id}:
+ *   put:
+ *     summary: Update admin by ID
+ *     description: Update admin information based on the provided admin ID.
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The admin ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               
+ *     responses:
+ *       200:
+ *         description: The admin was updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 
+ *       400:
+ *         description: Invalid input
+ *       404:
+ *         description: Admin not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put("/updateAdminById/:id", updateAdminById)
 
+/**
+ * @swagger
+ * /admin/change-password/{id}:
+ *   put:
+ *     summary: Change an admin's password
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID of the admin whose password is to be changed
+ *         schema:
+ *           type: string
+ *       - in: body
+ *         name: body
+ *         description: Old and new passwords
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             oldPassword:
+ *               type: string
+ *               example: "OldPassword123"
+ *             newPassword:
+ *               type: string
+ *               example: "NewPassword123"
+ *     responses:
+ *       200:
+ *         description: Password updated successfully
+ *       401:
+ *         description: Old password is incorrect or user not authorized
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put("/change-password/:id", changePassword);
 
 // ** User Controller All API ** //
 
