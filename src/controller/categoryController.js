@@ -12,6 +12,8 @@ const addCategory = async (req, res) => {
       return res.status(400).json({ message: "Category name is required." });
     }
 
+  
+
     const newCategory = new Category({
       name,
       icon: icon || '', 
@@ -90,7 +92,6 @@ const getCategory = async (req, res) => {
                   name: 1,
                   icon: 1,
                   toolCount: { $size: '$tools' },
-                  // tools: 0 // Exclude the tools array from the result
               }
           },
           {
@@ -174,15 +175,20 @@ const getCategoryById = async (req, res) => {
 
 const updateCategory = async (req, res) => {
   try {
-    const { categoryId } = req.params;
-    const updatedCategory = await Category.findByIdAndUpdate(categoryId, req.body, {
-      new: true,
+    // const { categoryId } = req.params;
+    // console.log(categoryId);
+    
+    // const updatedCategory = await Category.findByIdAndUpdate(categoryId, req.body, {
+    //   new: true,
+    // });
+    // if (!updatedCategory) {
+    //   return res
+    //     .status(404)
+    //     .json({ success: false, message: "Category not found"});
+    // }
+    const updatedCategory = await Category.findByIdAndUpdate(req.params.id, {
+      $set: req.body,
     });
-    if (!updatedCategory) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Category not found" });
-    }
     res.status(200).json({ success: true, data: updatedCategory });
   } catch (error) {
     console.error("Error updating category data:", error);

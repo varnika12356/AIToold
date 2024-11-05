@@ -17,12 +17,19 @@ const signup = asyncHandler(async (req, res) => {
     throw new Error("Please add all fields");
   }
 
-  // Check if user Exists
-  const userExists = await UsersModel.findOne({ email });
-  if (userExists) {
-    res.status(400);
-    throw new Error("User Already Exists");
-  }
+   // Check if email or number already exists
+   const emailExists = await UsersModel.findOne({ email });
+   const numberExists = await UsersModel.findOne({ number });
+ 
+   if (emailExists) {
+     return res.status(400).json({ error: "Email already exists" });
+   }
+ 
+   if (numberExists) {
+     return res.status(400).json({ error: "Number already exists" });
+   }
+
+  
 
   // Hash Password
   const salt = await bcrypt.genSalt(10);

@@ -97,13 +97,13 @@ router.get("/getfooter", getFooter);
  *               password:
  *                 type: string
  *                 description: Admin password
- *               name:
+ *               username:
  *                 type: string
  *                 description: Admin name
  *             example:
  *               email: admin@example.com
  *               password: yourpassword123
- *               name: John Doe
+ *               username: John Doe
  *     responses:
  *       201:
  *         description: Admin registered successfully
@@ -117,7 +117,7 @@ router.get("/getfooter", getFooter);
  *                   description: Admin ID
  *                 email:
  *                   type: string
- *                 name:
+ *                 username:
  *                   type: string
  *                 message:
  *                   type: string
@@ -337,7 +337,7 @@ router.post("/login", login);
 
 /**
  * @swagger
- * /signup:
+ * /addUser:
  *   post:
  *     summary: Register a new user
  *     description: This endpoint allows a user to register by providing user details such as name, email, number, and password.
@@ -379,7 +379,7 @@ router.post("/login", login);
  *       500:
  *         description: Internal server error
  */
-router.post("/signup", signup);
+router.post("/addUser", signup);
 
 
 // Forgot data API

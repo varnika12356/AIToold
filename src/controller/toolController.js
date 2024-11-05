@@ -28,7 +28,6 @@ const addTool = async (req, res) => {
       },
       status: req.body.status !== undefined ? req.body.status : false, 
       visit_count: req.body.visit_count !== undefined ? req.body.visit_count : 0, 
-      // filter: req.body.filter || "new", 
       firebase_image_url: req.body.firebase_image_url,
       isFree: req.body.isFree !== undefined ? req.body.isFree : false, 
       isVerified: req.body.isVerified !== undefined ? req.body.isVerified : false, 

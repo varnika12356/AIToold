@@ -7,7 +7,7 @@ const AdminSchema = require("../schema/admin")
 
 
 const signupAdmin = async (req, res) => {
-    const { email, password, name } = req.body;
+    const { email, password, username } = req.body;
     try {
       const existingUser = await AdminSchema.findOne({ email });
       if (existingUser) {
@@ -16,7 +16,7 @@ const signupAdmin = async (req, res) => {
       const salt = await bcrypt.genSalt(saltRounds);
       const hashedPassword = await bcrypt.hash(password, salt);
       const newUser = new AdminSchema({
-        name,
+        username,
         email,
         password: hashedPassword,
       });
@@ -28,7 +28,7 @@ const signupAdmin = async (req, res) => {
           loginid: savedUser._id,
           email: savedUser.email,
           message: "Registered Successfully",
-          name: savedUser.name,
+          username: savedUser.username,
         });
     } catch (error) {
       res.status(500).json({ error: "Internal server error" });
@@ -94,7 +94,7 @@ const updateAdminById = async (req, res) => {
       const updatedAdmin = await AdminSchema.findByIdAndUpdate(
         req.params.id,
         { $set: req.body },
-        { new: true, runValidators: true } // Ensure the returned data is updated, and validators run
+        { new: true, runValidators: true } 
       );
       
       if (!updatedAdmin) {
@@ -124,7 +124,6 @@ const updateAdminById = async (req, res) => {
             return res.status(401).json({ error: "Old password is incorrect" });
         }
 
-        // Check if the new password is the same as the old password
         const isNewPasswordSameAsOld = await bcrypt.compare(newPassword, user.password);
         if (isNewPasswordSameAsOld) {
             return res.status(400).json({ error: "New password cannot be the same as old password" });
