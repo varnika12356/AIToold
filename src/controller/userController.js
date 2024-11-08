@@ -8,39 +8,44 @@ const asyncHandler = require("express-async-handler");
 //@route  POST /signup
 //@access Private
 const signup = asyncHandler(async (req, res) => {
-  const { name, email, number, password } = req.body;
+  const { name, email, number, password, dob, username, gender, city, state, country, role, status } = req.body;
 
-  // console.log(name, email, number, password, "users");
-
+  // Validate required fields
   if (!name || !email || !number || !password) {
     res.status(400);
     throw new Error("Please add all fields");
   }
 
-   // Check if email or number already exists
-   const emailExists = await UsersModel.findOne({ email });
-   const numberExists = await UsersModel.findOne({ number });
- 
-   if (emailExists) {
-     return res.status(400).json({ error: "Email already exists" });
-   }
- 
-   if (numberExists) {
-     return res.status(400).json({ error: "Number already exists" });
-   }
+  // Check if email or number already exists
+  const emailExists = await UsersModel.findOne({ email });
+  const numberExists = await UsersModel.findOne({ number });
 
-  
+  if (emailExists) {
+    return res.status(400).json({ error: "Email already exists" });
+  }
+
+  if (numberExists) {
+    return res.status(400).json({ error: "Number already exists" });
+  }
 
   // Hash Password
   const salt = await bcrypt.genSalt(10);
   const hashPassword = await bcrypt.hash(password, salt);
 
-  // create user
+  // Create user
   const user = await UsersModel.create({
     name,
     email,
     number,
     password: hashPassword,
+    dob,
+    username,
+    gender,
+    city,
+    state,
+    country,
+    role,  // Make sure this field is in the schema if you're sending it in the payload
+    status: status || true, // Use default value if status is not provided
   });
 
   if (user) {
@@ -49,23 +54,84 @@ const signup = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       number: user.number,
-      password: user.password,
+      dob: user.dob,
+      username: user.username,
+      gender: user.gender,
+      city: user.city,
+      state: user.state,
+      country: user.country,
+      role: user.role, // Include any new fields you're adding
+      status: user.status,
     });
   } else {
     res.status(400);
     throw new Error("Invalid Credentials");
   }
-
-  // if (!userData) {
-  //   const salt = await bcrypt.genSalt(saltRounds);
-  //   req.body.password = await bcrypt.hash(req.body.password, salt);
-  //   UsersModel.create(req.body)
-  //     .then((users) => res.json(users))
-  //     .catch((err) => res.json(err));
-  // } else {
-  //   res.json("User Details Already Exists Please Enter a New Entry !");
-  // }
 });
+
+// const signup = asyncHandler(async (req, res) => {
+//   const { name, email, number, password } = req.body;
+
+//   // console.log(name, email, number, password, "users");
+
+//   if (!name || !email || !number || !password) {
+//     res.status(400);
+//     throw new Error("Please add all fields");
+//   }
+
+//    // Check if email or number already exists
+//    const emailExists = await UsersModel.findOne({ email });
+//    const numberExists = await UsersModel.findOne({ number });
+ 
+//    if (emailExists) {
+//      return res.status(400).json({ error: "Email already exists" });
+//    }
+ 
+//    if (numberExists) {
+//      return res.status(400).json({ error: "Number already exists" });
+//    }
+
+  
+
+//   // Hash Password
+//   const salt = await bcrypt.genSalt(10);
+//   const hashPassword = await bcrypt.hash(password, salt);
+
+//   // create user
+//   const user = await UsersModel.create({
+//     name,
+//     email,
+//     number,
+//     password: hashPassword,
+  
+  
+//   });
+
+//   if (user) {
+//     res.status(201).json({
+//       _id: user.id,
+//       name: user.name,
+//       email: user.email,
+//       number: user.number,
+//       password: user.password,
+   
+     
+//     });
+//   } else {
+//     res.status(400);
+//     throw new Error("Invalid Credentials");
+//   }
+
+//   // if (!userData) {
+//   //   const salt = await bcrypt.genSalt(saltRounds);
+//   //   req.body.password = await bcrypt.hash(req.body.password, salt);
+//   //   UsersModel.create(req.body)
+//   //     .then((users) => res.json(users))
+//   //     .catch((err) => res.json(err));
+//   // } else {
+//   //   res.json("User Details Already Exists Please Enter a New Entry !");
+//   // }
+// });
 
 //@desc   Set Login User
 //@route  POST /login
@@ -106,6 +172,8 @@ const getprofile = asyncHandler(async (req, res) => {
 //@route  PUT /forgot
 //@access Private
 const forgotdata = asyncHandler(async (req, res) => {
+ 
+  
   try {
     const users = await UsersModel.findOne({
       email: req.body.email,
@@ -144,20 +212,50 @@ const updateprofile = asyncHandler(async (req, res) => {
 //@route  GET /getuser
 //@access Private
 const getAlluser = asyncHandler(async (req, res) => {
+  
+  
   try {
-    let contactData = await UsersModel.find();
+    const page = parseInt(req.query.page) || 1; // Current page, default to 1
+    const limit = parseInt(req.query.limit) || 10; // Number of items per page, default to 10
+    const skip = (page - 1) * limit; // Calculate the number of documents to skip
+
+    // Retrieve user data with pagination
+    let contactData = await UsersModel.find().skip(skip).limit(limit);
     const totalUser = await UsersModel.countDocuments();
 
-    res.status(200).json({ contactData, totalUser });
+    // Calculate total pages
+    const totalPages = Math.ceil(totalUser / limit);
+
+    res.status(200).json({
+      data: contactData,
+      currentPage: page,
+      totalPages,
+      totalUser // Total number of users for pagination
+    });
   } catch (error) {
     console.log(error);
     if (!error.status) {
       error.status = 500;
     }
-
     res.status(error.status).json({ message: error.message });
   }
 });
+
+// const getAlluser = asyncHandler(async (req, res) => {
+//   try {
+//     let contactData = await UsersModel.find();
+//     const totalUser = await UsersModel.countDocuments();
+
+//     res.status(200).json({ contactData, totalUser });
+//   } catch (error) {
+//     console.log(error);
+//     if (!error.status) {
+//       error.status = 500;
+//     }
+
+//     res.status(error.status).json({ message: error.message });
+//   }
+// });
 
 
 //@desc   Genetate Token Function
